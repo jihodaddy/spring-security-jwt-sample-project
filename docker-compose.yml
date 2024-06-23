@@ -1,0 +1,55 @@
+services:
+  backend:
+    build:
+      context: .
+    container_name: starter-was
+    ports:
+      - 8080:8080
+    networks:
+      - starter-network
+    depends_on:
+      - db
+    volumes:
+      - ./logs:/logs
+    environment:
+      - DATABASE_URL=jdbc:postgresql://host.docker.internal:13306/saas
+      - DATABASE_USERNAME=root
+      - DATABASE_PASSWORD=1234
+      - TZ=Asia/Seoul
+  mysql:
+    user: 501:20
+    image: mysql:8.0.33
+    container_name: starter-db
+    restart: always
+    networks:
+      - starter-network
+    ports:
+      - 13306:3306
+    volumes:
+      - ./docker/mysql_docker/data:/var/lib/mysql:rw
+      - ./src/main/resources/initdb:/docker-entrypoint-initdb.d
+    command:
+      - '--character-set-server=utf8mb4'
+      - '--collation-server=utf8mb4_unicode_ci'
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: saas
+  promtail:
+    container_name: loki-promtail
+    image: grafana/promtail:latest
+    ports:
+      - "1514:1514"
+    volumes:
+      - /var/log:/var/log
+      - ./docker/loki/config:/mnt/config
+      - /var/log/journal/:/var/log/journal/
+      - /run/log/journal/:/run/log/journal/
+      - /etc/machine-id:/etc/machine-id
+      - ./logs:/logs
+    command: -config.file=/mnt/config/promtail-config.yaml
+    networks:
+      - starter-network
+
+networks:
+  starter-network:
+    driver: bridge

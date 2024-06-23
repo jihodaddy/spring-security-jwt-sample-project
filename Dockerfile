@@ -1,0 +1,20 @@
+FROM openjdk:17-alpine
+
+WORKDIR /
+
+ARG SERVICE_PORT=8080
+ARG JAR_FILE=build/libs/*.jar
+
+ENV RUNNING_PORT=${SERVICE_PORT}
+ENV DATABASE_URL=${SERVICE_PORT}
+ENV DATABASE_USERNAME=${SERVICE_PORT}
+ENV DATABASE_PASSWORD=${SERVICE_PORT}
+
+
+CMD ["./gradlew", "clean", "build"]
+
+COPY ${JAR_FILE} /app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-Xms128M", "-Xmx512M", "-Drunnig.port=${RUNNIG_PORT}", "-jar", "./app.jar"]

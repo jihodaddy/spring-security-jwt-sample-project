@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 5s
+  external_labels:
+    monitor: 'monitor'
+  query_log_file: query_log_file.log
+scrape_configs:
+  - job_name: 'local-prometeus'
+    static_configs:
+      # - targets: ["host.docker.internal:8080"]
+      - targets: ["prometheus:9090"]
+  - job_name: 'starter-monitor'
+    metrics_path: /management/prometheus
+    static_configs:
+      # - targets: ["host.docker.internal:8080"]
+      - targets: ["host.docker.internal:8080"]

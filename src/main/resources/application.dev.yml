@@ -1,0 +1,82 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: starter
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DATABASE_URL:jdbc:mysql://localhost:13306/saas}
+    username: ${DATABASE_USERNAME:root}
+    password: ${DATABASE_PASSWORD:1234}
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: none #update #create
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: Asia/Seoul
+    show-sql: false
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:test}
+            client-secret: ${GOOGLE_CLIENT_SECRET:test}
+            scope: profile, email
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            authorization-grant-type: authorization_code
+            client-name: Google
+          github:
+            client-id: ${GITHUB_CLIENT_ID:test}
+            client-secret: ${GITHUB_CLIENT_SECRET:test}
+            scope: read:user, user:email
+            redirect-uri: "{baseUrl}/login/oauth2/code/github"
+            authorization-grant-type: authorization_code
+            client-name: GitHub
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+            user-name-attribute: id
+
+management:
+  endpoints:
+    web:
+      base-path: /management
+      # path-mapping:
+      #   metrics: prometheus
+      exposure:
+        include: info, health, beans, conditions, heapdump, metrics, threaddump, prometheus
+        # exclude: "env, beans"
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoint:
+    health:
+      show-details: always
+
+jwt:
+  secret: ${JWT_SECRET:7c5345958c3e65725733160119985c98465349ffb3d6a1fcbf04a07dd6dbe06c}
+  type: JWT
+  header: "Authorization"
+  prefix: "Bearer "
+  expire-time-access-token: 1800000 #30minutes
+  expire-time-refresh-token: 86400000 #1day
+
+logging:
+  level:
+    root: ${LOGGING_LEVEL_ROOT:info}
+    app: ${LOGGING_LEVEL_PROJECT:debug}
+  file:
+    path: ${LOGGING_FILE_PATH:logs}
